@@ -1,0 +1,16 @@
+api:
+  dashboard: true
+  insecure: true
+
+entryPoints:
+  web:
+    address: ":80"
+  websocket:
+    address: ":8000"
+  messages:
+    address: ":50051"
+
+providers:
+  docker: {}
+  # file:
+  #   directory: "/etc/traefik/dynamic"

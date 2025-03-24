@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package message;
+
+option go_package = "github.com/alexispell/messages/pb";
+
+service MessageService {
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+}
+
+message SendMessageRequest {
+  string chat_id = 1;
+  string sender_id = 2;
+  string message = 3;
+}
+
+message SendMessageResponse {
+  string message_id = 1;
+  string timestamp = 2;
+}
