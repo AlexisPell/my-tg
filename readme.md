@@ -9,8 +9,7 @@
 - websocket:8000
 - messages:8001
 
-1. Определение архитектуры
-
+1. Architecture
 - API Gateway — маршрутизация запросов
 - WebSocket Service — обработка реального времени, обновления чатов и сообщений
 - Auth Service — управление пользователями, JWT/OAuth, интеграция с Keycloak
@@ -19,36 +18,36 @@
 - Message Service — отправка и хранение сообщений в ScyllaDB
 - Notification Service — пуш-уведомления и e-mail
 
-    2. Выбор технологий
-- Язык: Go (gRPC + REST)
-- База данных: ScyllaDB
-- Брокер сообщений: Kafka
+    2. Tech list
+- Go (gRPC + REST)
+- ScyllaDB
+- Kafka
 - API-gateway: Traefik
-- Docker + Kubernetes (Helm для деплоя)
+- Docker + Kubernetes
 - Tracing + observability: Grafana, Prometheus, Loki, Tempo
 
     3. Services
-- Сервис аутентификации (Auth Service)
+- Auth Service
     Используем Keycloak для управления пользователями
     Генерация и валидация JWT-токенов
     gRPC API для проверки пользователей
-- Сервис пользователей (User Service)
+- User Service
     PostgreSQL для хранения данных о пользователях
     REST/gRPC API для работы с профилями
     Подключение к Auth Service для верификации
-- Сервис чатов (Chat Service)
-    Хранение информации о чатах (группы, участники)
+- Chat Service
+    Хранение информации о чатах группы, участники
     API для создания/удаления чатов
     gRPC для взаимодействия с Message Service
-- Сервис сообщений (Message Service)
+- Message Service
     ScyllaDB для хранения сообщений
     gRPC API для отправки сообщений
     Интеграция с WebSocket Service
-- Сервис WebSocket (WebSocket Service)
+- WebSocket Service
     Подключение пользователей через WebSocket
     Получение сообщений из Kafka
     Отправка сообщений клиентам
-- Сервис уведомлений (Notification Service)
+- Notification Service
     Генерация push-уведомлений
     Поддержка Firebase, email
     
