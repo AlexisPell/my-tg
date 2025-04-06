@@ -11,16 +11,16 @@ import (
 )
 
 type MessageService struct {
+	pb.UnimplementedMessageServiceServer
 	DB       *gocql.Session
 	Producer sarama.SyncProducer
-	pb.UnimplementedMessageServiceServer
 }
 
 func NewMessageService(
-// db *gocql.Session, kafkaProducer sarama.SyncProducer
+// db *gocql.Session
 ) *MessageService {
 	return &MessageService{
-		// DB: db, Producer: kafkaProducer
+		// DB: db
 	}
 }
 
@@ -33,7 +33,7 @@ func (s *MessageService) SendMessage(ctx context.Context, req *pb.SendMessageReq
 	// err := db.Session.Query(`INSERT INTO messages (chat_id, message_id, sender_id, content, timestamp)
 	// VALUES (?, ?, ?, ?, ?)`, req.ChatId, messageID, req.SenderId, req.Message, timestamp).Exec()
 	// if err != nil {
-	// 	log.Println("Error writing in ScyllaDB:", err)
+	// 	log.Println(">>> Error writing in ScyllaDB:", err)
 	// 	return nil, err
 	// }
 	// err := s.DB.Query(`INSERT INTO messages (chat_id, message_id, sender_id, content, timestamp)
@@ -51,7 +51,7 @@ func (s *MessageService) SendMessage(ctx context.Context, req *pb.SendMessageReq
 	}
 	// _, _, err = s.Producer.SendMessage(msg)
 	// if err != nil {
-	// 	log.Println("Error sending msg to kafka:", err)
+	// 	log.Println(">>> Error sending msg to kafka:", err)
 	// 	return nil, err
 	// }
 

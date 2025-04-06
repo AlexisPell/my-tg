@@ -2,12 +2,15 @@
 Сервисные:
 - zookeeper:2181
 - kafka:9092
-- schema-registry:8081
+- schema-registry:8081 (temporarily switched off)
 - kafka-ui:4200
-- traefik:80
+- traefik:80 (web), 8080 (dashboard), 8082 (metrics)
+- grafana:3000
+- prometheus:9090
 Функциональные:
 - websocket:8000
-- messages:8001
+- messages:8001 // 9001 for /metrics
+- users:8002
 
 1. Architecture
 - API Gateway — маршрутизация запросов
@@ -16,7 +19,7 @@
 - User Service — хранение информации о пользователях
 - Chat Service — управление чатами, добавление/удаление пользователей в группы
 - Message Service — отправка и хранение сообщений в ScyllaDB
-- Notification Service — пуш-уведомления и e-mail
+- Notification Service
 
     2. Tech list
 - Go (gRPC + REST)

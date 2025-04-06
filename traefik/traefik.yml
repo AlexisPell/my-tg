@@ -2,7 +2,13 @@ api:
   dashboard: true
   insecure: true
 
+metrics:
+  prometheus: {}
+    # entryPoint: metrics
+
 entryPoints:
+  # metrics:
+  #   address: ":8082"
   web:
     address: ":80"
   websocket:

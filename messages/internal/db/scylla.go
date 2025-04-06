@@ -18,9 +18,9 @@ func InitScylla() {
 	var err error
 	Session, err = cluster.CreateSession()
 	if err != nil {
-		log.Fatal("Error connecting to ScyllaDB:", err)
+		log.Fatal(">>> Error connecting to ScyllaDB:", err)
 	}
-	log.Println("Successfully connected to scylla db")
+	log.Println(">>> Successfully connected to scylla db")
 }
 
 func CloseScylla() {

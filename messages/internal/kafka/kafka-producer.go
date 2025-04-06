@@ -16,15 +16,15 @@ func InitKafkaProducer(brokers []string) {
 	var err error
 	Producer, err = sarama.NewSyncProducer(brokers, config)
 	if err != nil {
-		log.Fatal("Error instantiating Kafka Producer:", err)
+		log.Fatal(">>> Error instantiating Kafka Producer:", err)
 	}
-	log.Println("Kafka Producer instantiated successfully :)")
+	log.Println(">>> Kafka Producer instantiated successfully :)")
 }
 
 func SendMessageToKafka(msg *sarama.ProducerMessage) error {
 	_, _, err := Producer.SendMessage(msg)
 	if err != nil {
-		log.Println("Error on pulling msg to Kafka:", err)
+		log.Println(">>> Error on pulling msg to Kafka:", err)
 		return err
 	}
 	return nil

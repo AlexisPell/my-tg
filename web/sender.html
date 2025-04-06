@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>X3DH Sender</title>
+  <script src="nacl.min.js"></script>
+  <script type="module">
+    import {
+      generateKeyPair,
+      deriveSharedSecret,
+      aesEncrypt,
+      base64ToBytes,
+      bytesToBase64
+    } from './x3dh_utils.js';
+
+    let log = (msg) => document.getElementById("log").value += msg + "\n";
+
+    const recipient = await fetch('http://localhost:8002/keys').then(r => r.json());
+    console.log(">>> Recipient: ", recipient)
+
+    const IK_B = base64ToBytes(recipient.identity_key.public);
+    const SPK_B = base64ToBytes(recipient.signed_pre_key.public);
+    const OTPK_B = base64ToBytes(recipient.one_time_keys[0].public);
+
+    const EK_A = generateKeyPair();
+
+    const sharedSecret = await deriveSharedSecret({
+      EK_A_priv: EK_A.privateKey,
+      IK_B,
+      SPK_B,
+      OTPK_B
+    });
+
+    window.send = async () => {
+      const msg = document.getElementById("msg").value;
+      const { ciphertext, iv } = await aesEncrypt(msg, sharedSecret);
+      log(`🔒 Encrypted: ${bytesToBase64(ciphertext)}`);
+      log(`📎 IV: ${bytesToBase64(iv)}`);
+      log(`📤 EK_A public: ${bytesToBase64(EK_A.publicKey)}\n`);
+    };
+  </script>
+</head>
+<body>
+  <h2>🔐 X3DH Sender (X25519)</h2>
+  <textarea id="log" rows="15" cols="70" readonly></textarea><br>
+  <input type="text" id="msg" placeholder="Введите сообщение">
+  <button onclick="send()">Send Encrypted</button>
+</body>
+</html>

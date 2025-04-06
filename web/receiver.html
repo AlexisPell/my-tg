@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>X3DH Receiver</title>
+  <script src="nacl.min.js"></script>
+  <script type="module">
+    import {
+      deriveSharedSecret,
+      base64ToBytes,
+      bytesToBase64
+    } from './x3dh_utils.js';
+
+    let log = (msg) => document.getElementById("log").value += msg + "\n";
+
+    // Загружаем приватные ключи получателя из Go-keys.json
+    const recipient = await fetch('http://localhost:8002/keys').then(r => r.json());
+
+    const IK_B_priv = base64ToBytes(recipient.identity_key.private);
+    const SPK_B_priv = base64ToBytes(recipient.signed_pre_key.private);
+    const OTPK_B_priv = base64ToBytes(recipient.one_time_keys[0].private);
+
+    // Полученные от отправителя:
+    const EK_A_pub_base64 = prompt("🔑 Вставь EK_A (base64):");
+    const iv_base64 = prompt("📎 Вставь IV (base64):");
+    const ciphertext_base64 = prompt("✉️ Вставь зашифрованное сообщение (base64):");
+
+    const EK_A_pub = base64ToBytes(EK_A_pub_base64);
+    const iv = base64ToBytes(iv_base64);
+    const ciphertext = base64ToBytes(ciphertext_base64);
+
+    // DH-вычисления
+    const dh = (priv, pub) => nacl.scalarMult(priv, pub);
+
+    const dh1 = dh(IK_B_priv, EK_A_pub);
+    const dh2 = dh(SPK_B_priv, EK_A_pub);
+    const dh3 = dh(OTPK_B_priv, EK_A_pub);
+
+    const combined = new Uint8Array([...dh1, ...dh2, ...dh3]);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", combined);
+    const sharedSecret = new Uint8Array(hashBuffer).slice(0, 32);
+
+    // Расшифровка
+    const key = await crypto.subtle.importKey(
+      "raw",
+      sharedSecret,
+      { name: "AES-GCM" },
+      false,
+      ["decrypt"]
+    );
+
+    try {
+      const decrypted = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv },
+        key,
+        ciphertext
+      );
+
+      const msg = new TextDecoder().decode(decrypted);
+      log(`✅ Расшифровано сообщение:\n${msg}`);
+    } catch (e) {
+      log("❌ Ошибка при расшифровке: " + e.message);
+    }
+  </script>
+</head>
+<body>
+  <h2>📥 X3DH Receiver</h2>
+  <textarea id="log" rows="15" cols="70" readonly></textarea><br>
+</body>
+</html>

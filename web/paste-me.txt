@@ -5,13 +5,13 @@ JS CODE:::
 const socket = new WebSocket("ws://localhost:8080/ws");
 
 socket.onmessage = function(event) {
-    console.log("Новое сообщение:", event.data);
+    console.log("New msg:", event.data);
 };
 
 socket.onopen = function() {
-    console.log("Подключено к WebSocket");
+    console.log("WebSocket connected");
 };
 
 socket.onclose = function() {
-    console.log("Соединение закрыто");
+    console.log("Ws disconnected");
 };
