@@ -68,7 +68,7 @@ export default function X3DHReceiver() {
 
   return (
     <div className="p-4 space-y-2">
-      <h2 className="text-xl font-bold">📥 X3DH Receiver (React)</h2>
+      <h2 className="text-xl font-bold">📥 X3DH Receiver</h2>
       <input
         type="text"
         placeholder="EK_A Public (base64)"

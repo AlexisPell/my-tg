@@ -75,7 +75,7 @@ export default function X3DHSender() {
 
   return (
     <div className="p-4 space-y-2">
-      <h2 className="text-xl font-bold">🔐 X3DH Sender (React)</h2>
+      <h2 className="text-xl font-bold">🔐 X3DH Sender</h2>
       <input
         type="text"
         className="border p-2 w-full"
