@@ -110,7 +110,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.websocket.rule=PathPrefix(`/api/v1/ws`)"
-      - "traefik.http.routers.websocket.entrypoints=web"
+      - "traefik.http.routers.websocket.entrypoints=web" # <-- web means that it goes throw 80
       - "traefik.http.routers.websocket.middlewares=websocket-headers"
       - "traefik.http.services.websocket.loadbalancer.server.port=8000"
       - "traefik.http.middlewares.websocket-headers.headers.customRequestHeaders.Connection=Upgrade"
@@ -142,6 +142,39 @@ services:
     networks:
       - web
 
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    container_name: users
+    volumes:
+      - ./users:/app # for air
+    environment:
+      - GIN_MODE=release
+      - PORT=8002
+      - KAFKA_URL=kafka:9092
+    ports:
+      - 8002:8002
+    depends_on:
+      - kafka
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.users.rule=PathPrefix(`/api/v1/users`)"
+      - "traefik.http.routers.users.entrypoints=web"
+      - "traefik.http.services.users.loadbalancer.server.port=8002"
+    networks:
+      - web
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 networks:
   web:
     # name: web
@@ -150,3 +183,4 @@ networks:
 volumes:
   zookeeper_data:
   zookeeper_log:
+  postgres_data:
