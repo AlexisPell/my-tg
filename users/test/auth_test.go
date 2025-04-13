@@ -25,13 +25,15 @@ func TestRegister(t *testing.T) {
 		Password:          "password123",
 		DeviceFingerPrint: "unique_device_fingerprint1",
 	}
-	err := service.Register(user)
+	accessToken, refreshToken, err := service.Register(user)
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, user.Password)
+	assert.NotEmpty(t, accessToken)
+	assert.NotEmpty(t, refreshToken)
 }
 
-func TestLogin(t *testing.T) {
+func TestLogin_Success(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	db.AutoMigrate(&model.User{})
 
@@ -46,13 +48,14 @@ func TestLogin(t *testing.T) {
 	}
 	service.Register(user)
 
-	loggedInUser, err := service.Login("test2@example.com", "password123")
+	accessToken, refreshToken, err := service.Login("test2@example.com", "password123")
 
 	assert.Nil(t, err)
-	assert.Equal(t, user.Email, loggedInUser.Email)
+	assert.NotEmpty(t, accessToken)
+	assert.NotEmpty(t, refreshToken)
 }
 
-func TestLoginWithWrongPassword(t *testing.T) {
+func TestLogin_Failure_WithWrongPassword(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
 	db.AutoMigrate(&model.User{})
 
@@ -67,8 +70,47 @@ func TestLoginWithWrongPassword(t *testing.T) {
 	}
 	service.Register(user)
 
-	loggedInUser, err := service.Login("test3@example.com", "wrongpassword")
+	accessToken, refreshToken, err := service.Login("test3@example.com", "wrongpassword")
 
 	assert.Error(t, err)
-	assert.Nil(t, loggedInUser)
+	assert.Empty(t, accessToken)
+	assert.Empty(t, refreshToken)
+}
+
+func TestRefreshTokens_Success(t *testing.T) {
+	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db.AutoMigrate(&model.User{})
+
+	repo := repository.NewUserRepository(db)
+	service := service.NewAuthService(&repo)
+
+	user := &model.User{
+		Nickname:          "testuser4",
+		Email:             "test4@example.com",
+		Password:          "password123",
+		DeviceFingerPrint: "unique_device_fingerprint4",
+	}
+	_, refreshToken, _ := service.Register(user)
+
+	newAccessToken, newRefreshToken, err := service.RefreshTokens(refreshToken)
+
+	assert.Nil(t, err)
+	assert.NotEmpty(t, newAccessToken)
+	assert.NotEmpty(t, newRefreshToken)
+}
+
+func TestRefreshTokens_Failure(t *testing.T) {
+	db, _ := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	db.AutoMigrate(&model.User{})
+
+	repo := repository.NewUserRepository(db)
+	service := service.NewAuthService(&repo)
+
+	invalidRefreshToken := "invalidToken"
+
+	newAccessToken, newRefreshToken, err := service.RefreshTokens(invalidRefreshToken)
+
+	assert.NotNil(t, err)
+	assert.Empty(t, newAccessToken)
+	assert.Empty(t, newRefreshToken)
 }
